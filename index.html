@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LegraJSサンプル</title>
+    <script src="https://unpkg.com/legra?browser"></script>
+  </head>
+
+  <body>
+    <!-- canvas 必須です -->
+    <!-- 描画されるブロックがデフォルト24pxであることに注意してサイズを設定してください -->
+    <!-- ブロックのサイズは任意に指定可能です。また、キャンバスの上と左は1ブロック分余白になります。 -->
+    <canvas id="myCanvas"></canvas>
+    <!-- ファイル選択時に変換を実行します -->
+    <input type="number" id="size" value="12" min="12" max="70" />
+    <input type="file" accept="image/*" onchange="handleFiles(this.files[0])" />
+
+    <script>
+      // headでインポートしたスクリプトにvar legraが定義されています。
+      const myCanvas = document.getElementById("myCanvas");
+      const size = document.getElementById("size");
+      const ctx = myCanvas.getContext("2d");
+      // 公式ドキュメントの例文に従うためにLegraとlegraを入れ替えます。
+      const Legra = legra;
+
+      function handleFiles(file) {
+        // blockSizeを小さすぎる値にすると非常に負荷がかかり、小さすぎるとブロックに見えません。
+        // 反対に一定大きすぎると真ん中の大きさが変わらなくなります。
+        const blockSize = size.value;
+        if (file && blockSize >= 12 && blockSize <= 70) {
+          legra = new Legra(ctx, blockSize);
+
+          const image = new Image();
+          const reader = new FileReader();
+
+          reader.onloadend = function() {
+            console.log(blockSize);
+            image.src = reader.result;
+            image.onload = function() {
+              myCanvas.width = image.naturalWidth;
+              myCanvas.height = image.naturalHeight;
+              legra.drawImage(image, [0, 0]);
+            };
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+    </script>
+  </body>
+</html>
